@@ -30,7 +30,7 @@ describe("package.json files", () => {
   it("ships every doc section the published README links to", () => {
     const readme = readFileSync(join(repoRoot, "README.md"), "utf-8");
     const links = [...readme.matchAll(/\]\(([^)]*docs\/[^)]*)\)/g)].map(([, url]) => {
-      const parsed = url!.match(/^https:\/\/github\.com\/nicobailon\/pi-mcp-adapter\/blob\/main\/(docs\/[\w-]+\.md)(?:#([\w-]+))?$/);
+      const parsed = url!.match(/^https:\/\/github\.com\/(?:nicobailon|zzstoatzz)\/pi-mcp-adapter\/blob\/main\/(docs\/[\w-]+\.md)(?:#([\w-]+))?$/);
       expect(parsed, url).not.toBeNull();
       return parsed!;
     });

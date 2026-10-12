@@ -1,4 +1,4 @@
-> Maintained fork for Pi and Gardener dogfooding. See [Skills over MCP](docs/skills-over-mcp.md) for the experimental per-server `skills: true` option.
+> Maintained fork for Pi and Gardener dogfooding. See [Skills over MCP](https://github.com/zzstoatzz/pi-mcp-adapter/blob/main/docs/skills-over-mcp.md) for the experimental per-server `skills: true` option.
 
 <p>
   <img src="banner.png" alt="pi-mcp-adapter" width="1100">
