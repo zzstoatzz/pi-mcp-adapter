@@ -315,6 +315,7 @@ export interface ServerEntry {
     idleTimeout?: number;
     requestTimeoutMs?: number;
     exposeResources?: boolean;
+    skills?: boolean;
     directTools?: boolean | string[] | "search";
     toolPrefix?: ToolPrefix;
     includeTools?: string[];

@@ -1349,6 +1349,9 @@ function toServerEntries(servers: unknown): Record<string, ServerEntry> {
   const entries: Record<string, ServerEntry> = {};
   for (const [name, entry] of Object.entries(servers)) {
     if (!isServerEntry(entry)) continue;
+    if (entry.skills !== undefined && typeof entry.skills !== "boolean") {
+      throw new Error(`MCP server "${name}": skills must be a boolean`);
+    }
     const auth: unknown = entry.auth;
     if (typeof auth === "object") {
       const provider = isRecord(auth) ? auth.provider : undefined;

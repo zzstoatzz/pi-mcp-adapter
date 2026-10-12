@@ -477,6 +477,7 @@ export interface ServerEntry {
   requestTimeoutMs?: number; // milliseconds, overrides global request timeout when > 0
   // Resource handling
   exposeResources?: boolean;
+  skills?: boolean;
   // Direct tool registration
   directTools?: boolean | string[] | "search";
   // Override settings.toolPrefix for this server.

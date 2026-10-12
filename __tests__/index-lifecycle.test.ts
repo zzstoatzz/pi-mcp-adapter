@@ -466,8 +466,8 @@ describe("mcpAdapter session lifecycle", () => {
     const { handlers } = await loadAdapter();
     const discover = handlers.get("resources_discover")!;
 
-    expect(discover({ cwd: "/project", reason: "initial" })).toEqual({ skillPaths: ["/skills/plugin-2"] });
-    expect(discover({ cwd: "/project", reason: "reload" })).toEqual({ skillPaths: ["/skills/plugin-3"] });
+    expect(await discover({ cwd: "/project", reason: "initial" })).toEqual({ skillPaths: ["/skills/plugin-2"] });
+    expect(await discover({ cwd: "/project", reason: "reload" })).toEqual({ skillPaths: ["/skills/plugin-3"] });
     expect(mocks.discoverConfiguredClaudePluginSkills).toHaveBeenCalledTimes(2);
   });
 
@@ -481,10 +481,10 @@ describe("mcpAdapter session lifecycle", () => {
 
     const expectedSkillPath = resolve("skills/mcp-scripting/SKILL.md");
     expect(registeredTool(api, "mcpScript")).toBeDefined();
-    expect(discover({ cwd: "/project", reason: "initial" })).toEqual({ skillPaths: [expectedSkillPath] });
+    expect(await discover({ cwd: "/project", reason: "initial" })).toEqual({ skillPaths: [expectedSkillPath] });
 
     config = { ...config, settings: { scriptMode: false } };
-    expect(discover({ cwd: "/project", reason: "reload" })).toEqual({ skillPaths: [expectedSkillPath] });
+    expect(await discover({ cwd: "/project", reason: "reload" })).toEqual({ skillPaths: [expectedSkillPath] });
   });
 
   it("keeps mcpScript guidance on the load-time scriptMode when the session config differs", async () => {
@@ -2591,7 +2591,7 @@ describe("mcpAdapter session lifecycle", () => {
     expect(mocks.initializeMcp.mock.calls[0]?.[1].cwd).toBe(sessionCwd);
 
     const discover = handlers.get("resources_discover")!;
-    discover({ cwd: sessionCwd, reason: "reload" });
+    await discover({ cwd: sessionCwd, reason: "reload" });
     expect(mocks.discoverConfiguredClaudePluginSkills.mock.calls[0]?.[0].claudePlugins[0].path).toBe(expectedPath);
     expect(mocks.discoverConfiguredClaudePluginSkills.mock.calls[0]?.[1]).toBe(sessionCwd);
   });

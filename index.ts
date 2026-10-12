@@ -1293,13 +1293,37 @@ function installMcpAdapter(pi: ExtensionAPI, options: McpAdapterOptions) {
   }
 
   const scriptingSkillPath = fileURLToPath(new URL("./skills/mcp-scripting/SKILL.md", import.meta.url));
-  pi.on("resources_discover", (event) => {
+  pi.on("resources_discover", async (event, ctx) => {
     const resourceConfig = programmaticConfig
       ? cloneMcpConfig(sessionConfig)
       : loadMcpConfig(earlyConfigPath, event.cwd);
     const skillPaths = discoverConfiguredClaudePluginSkills(resourceConfig, event.cwd);
     if (scriptTool && existsSync(scriptingSkillPath) && !skillPaths.includes(scriptingSkillPath)) {
       skillPaths.push(scriptingSkillPath);
+    }
+    if (Object.values(resourceConfig.mcpServers).some(definition => definition.skills === true && !isServerDisabled(definition))) {
+      const owner = currentOwner;
+      if (!owner?.isActive()) return skillPaths.length > 0 ? { skillPaths } : undefined;
+      if (!state && !initPromise) startInitialization(ctx, owner, lifecycleGeneration, "stale_skill_discovery");
+      const currentState = state ?? await initPromise;
+      owner.throwIfInactive();
+      if (!currentState) throw new Error("MCP initialization unavailable for skill discovery");
+      const { importRemoteSkills } = await import("./remote-skills.ts");
+      for (const [server, definition] of Object.entries(currentState.config.mcpServers)) {
+        if (definition.skills !== true || isServerDisabled(definition)) continue;
+        try {
+          const connected = await connectAndReport(currentState, server, owner.signal, ctx);
+          if (connected.details.error) throw new Error(String(connected.details.message ?? connected.details.error));
+          const snapshot = await importRemoteSkills(currentState.manager, server, owner.signal);
+          owner.throwIfInactive();
+          if (snapshot) skillPaths.push(...snapshot.skillPaths);
+        } catch (error) {
+          owner.throwIfInactive();
+          const message = `MCP skills (${server}): ${formatTerminalError(error)}`;
+          if (ctx.hasUI) ctx.ui.notify(message, "error");
+          else console.error(message);
+        }
+      }
     }
     return skillPaths.length > 0 ? { skillPaths } : undefined;
   });
