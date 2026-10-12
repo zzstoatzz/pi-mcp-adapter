@@ -27,3 +27,15 @@ Snapshots live under the Pi agent directory's `remote-skills` folder, keyed by s
 This initial implementation supports static manifests, up to 100 skills per server, 100 files per skill, 1 MiB per file and 5 MiB per skill. Dynamic skills are not supported. Native local skills with the same name retain Pi's normal collision behavior; exclude the local copy when migrating a skill to MCP.
 
 Run `npm run test:skills` for real stdio tests against the pinned experimental FastMCP implementation. The fixture requires `uv` and network access on its first dependency installation.
+
+## Dogfood validation
+
+Validated on Pi 0.87.0 locally and Pi 0.84.4 inside Gardener's real Linux sandbox.
+The local default package configuration discovers 21 skills without duplicate names;
+model reads and cross-process session resume succeed. Gardener's production canary
+read `gardener-history` from its MCP snapshot before a repository review.
+
+Type checking, 13 real stdio checks, 169 lifecycle tests, and the packed public-export
+checks pass. The broad upstream suite has two macOS helper-process cleanup failures
+that also reproduce on unchanged upstream commit 4b08a15. Its interactive visualizer
+tests require separately built example assets. No blanket all-tests-pass claim is made.
