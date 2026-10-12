@@ -11,6 +11,7 @@ Enable experimental SEP-2640 skills for an individual trusted MCP server:
       "command": "stoat-skills",
       "args": ["--profile", "interactive"],
       "skills": true,
+      "protocolVersion": "auto",
       "exposeResources": false
     }
   }
