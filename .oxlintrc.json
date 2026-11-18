@@ -1,0 +1,202 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [],
+  "categories": {
+    "correctness": "off"
+  },
+  "ignorePatterns": [
+    "dist/**",
+    "examples/**",
+    "node_modules/**"
+  ],
+  "jsPlugins": [
+    {
+      "name": "landmines-testing",
+      "specifier": "@interfere/landmines/testing"
+    }
+  ],
+  "rules": {
+    "landmines-testing/no-fixed-sleep": [
+      "error",
+      {
+        "allow": {
+          "__tests__/bearer-command-resolver.test.ts": 5,
+          "__tests__/commands-panel-non-tui.test.ts": 1,
+          "__tests__/mrtr-sdk-integration.test.ts": 2,
+          "__tests__/pi-builtin-mcp-autodisable.test.ts": 3,
+          "__tests__/pi-reload-real-path.test.ts": 1,
+          "__tests__/proxy-modes-manual-auth.test.ts": 2,
+          "__tests__/server-manager-http-auth.test.ts": 4,
+          "__tests__/server-manager-modern-listen.test.ts": 1,
+          "__tests__/server-manager-sse-abort.test.ts": 1,
+          "__tests__/server-manager-streamable-http.test.ts": 1,
+          "__tests__/ui-integration.test.ts": 1,
+          "__tests__/ui-server.test.ts": 17,
+          "__tests__/ui-streaming.test.ts": 7
+        }
+      }
+    ],
+    "landmines-testing/no-flake-masking": [
+      "error",
+      {
+        "allow": {
+          "__tests__/approval-broker-real-path.test.ts": 1,
+          "__tests__/direct-tools-child-startup.test.ts": 1,
+          "__tests__/lazy-loader.test.ts": 1,
+          "__tests__/mcp-code.test.ts": 1,
+          "__tests__/pi-builtin-mcp-autodisable.test.ts": 6,
+          "__tests__/pi-builtin-takeover.test.ts": 2,
+          "__tests__/pi-reload-real-path.test.ts": 1,
+          "__tests__/pi-signin-import.test.ts": 1,
+          "__tests__/request-headers-command.test.ts": 1,
+          "__tests__/server-manager-legacy-handshake.test.ts": 7,
+          "__tests__/server-manager-modern-listen.test.ts": 10
+        }
+      }
+    ],
+    "landmines-testing/no-test-doubles": "error",
+    "landmines-testing/no-unsignaled-poll": [
+      "error",
+      {
+        "allow": {
+          "__tests__/elicitation-handler.test.ts": 1,
+          "__tests__/elicitation-sdk-integration.test.ts": 1,
+          "__tests__/index-lifecycle.test.ts": 39,
+          "__tests__/init-project-trust-start.test.ts": 1,
+          "__tests__/lifecycle-lazy-keep-alive-init.test.ts": 2,
+          "__tests__/mcp-code-jev.test.ts": 1,
+          "__tests__/pi-builtin-mcp-autodisable.test.ts": 2,
+          "__tests__/pi-signin-import.test.ts": 1,
+          "__tests__/prompts.test.ts": 1,
+          "__tests__/proxy-modes-manual-auth.test.ts": 1,
+          "__tests__/runtime-protocol-transports.test.ts": 2,
+          "__tests__/runtime-register.test.ts": 1,
+          "__tests__/runtime-tool-call.test.ts": 1,
+          "__tests__/server-manager-reconnect.test.ts": 4,
+          "__tests__/ui-server.test.ts": 1,
+          "__tests__/ui-viewer-orca.test.ts": 1
+        }
+      }
+    ],
+    "landmines-testing/strict-msw": "error"
+  },
+  "overrides": [
+    {
+      "files": [
+        "__tests__/abort-signal.test.ts",
+        "__tests__/agent-plugin-conformance.test.ts",
+        "__tests__/claude-plugin-loader.test.ts",
+        "__tests__/collision-scan-lazy.test.ts",
+        "__tests__/combine-abort-signals.test.ts",
+        "__tests__/commands-auth.test.ts",
+        "__tests__/commands-edit.test.ts",
+        "__tests__/commands-onboarding.test.ts",
+        "__tests__/commands-panel-auth-storage.test.ts",
+        "__tests__/commands-panel-non-tui.test.ts",
+        "__tests__/commands-status-failure.test.ts",
+        "__tests__/config.test.ts",
+        "__tests__/direct-tool-host-contract.test.ts",
+        "__tests__/direct-tools-auto-auth.test.ts",
+        "__tests__/direct-tools.test.ts",
+        "__tests__/disabled-server.test.ts",
+        "__tests__/domain-error-guidance.test.ts",
+        "__tests__/elicitation-handler.test.ts",
+        "__tests__/elicitation-sdk-integration.test.ts",
+        "__tests__/helpers/panel-theme.ts",
+        "__tests__/host-managed.test.ts",
+        "__tests__/idle-close-in-use.test.ts",
+        "__tests__/index-lifecycle.test.ts",
+        "__tests__/init-elicitation.test.ts",
+        "__tests__/init-failure-state.test.ts",
+        "__tests__/init-project-trust-start.test.ts",
+        "__tests__/init-stale-ctx-race.test.ts",
+        "__tests__/init-status.test.ts",
+        "__tests__/init-transient-startup.test.ts",
+        "__tests__/jev-client.test.ts",
+        "__tests__/jev-integration-boundaries.test.ts",
+        "__tests__/jev-recipes.test.ts",
+        "__tests__/jev-setup.test.ts",
+        "__tests__/json-schema-validator.test.ts",
+        "__tests__/lazy-loader.test.ts",
+        "__tests__/lifecycle-lazy-keep-alive-init.test.ts",
+        "__tests__/lifecycle-lazy-keep-alive.test.ts",
+        "__tests__/load-time-project-trust.test.ts",
+        "__tests__/logger.test.ts",
+        "__tests__/mcp-auth-flow-client-credentials.test.ts",
+        "__tests__/mcp-callback-server-unref.test.ts",
+        "__tests__/mcp-code-jev.test.ts",
+        "__tests__/mcp-code.test.ts",
+        "__tests__/mcp-oauth-provider.test.ts",
+        "__tests__/mcp-panel-auth.test.ts",
+        "__tests__/mcp-panel-copy-error.test.ts",
+        "__tests__/mcp-panel-keybindings.test.ts",
+        "__tests__/mcp-probe.test.ts",
+        "__tests__/mcp-setup-panel-theme.test.ts",
+        "__tests__/mcp-status.test.ts",
+        "__tests__/mcp-tasks.test.ts",
+        "__tests__/mcp-trace.test.ts",
+        "__tests__/metadata-cache-ttl.test.ts",
+        "__tests__/mrtr-sdk-integration.test.ts",
+        "__tests__/namespace-tools.test.ts",
+        "__tests__/npx-resolver.test.ts",
+        "__tests__/observed-output-shape.test.ts",
+        "__tests__/pi-builtin-mcp-autodisable.test.ts",
+        "__tests__/pi-mcp-config.test.ts",
+        "__tests__/pi-registered-servers.test.ts",
+        "__tests__/pi-signin-import.test.ts",
+        "__tests__/project-server-trust.test.ts",
+        "__tests__/prompts-regressions.test.ts",
+        "__tests__/prompts.test.ts",
+        "__tests__/provider-auth.test.ts",
+        "__tests__/proxy-modes-auto-auth.test.ts",
+        "__tests__/proxy-modes-discovery.test.ts",
+        "__tests__/proxy-modes-manual-auth.test.ts",
+        "__tests__/proxy-progress.test.ts",
+        "__tests__/resource-tool-materialization.test.ts",
+        "__tests__/resources-capability.test.ts",
+        "__tests__/runtime-owner.test.ts",
+        "__tests__/runtime-protocol.test.ts",
+        "__tests__/runtime-register.test.ts",
+        "__tests__/runtime-tool-call.test.ts",
+        "__tests__/sampling-handler.test.ts",
+        "__tests__/saved-output-shapes.test.ts",
+        "__tests__/script-pipe-hint.test.ts",
+        "__tests__/secure-keyring-recovery.test.ts",
+        "__tests__/semantic-search.test.ts",
+        "__tests__/server-manager-auth-cache-recovery-integration.test.ts",
+        "__tests__/server-manager-auth-cache-recovery.test.ts",
+        "__tests__/server-manager-http-auth.test.ts",
+        "__tests__/server-manager-instructions.test.ts",
+        "__tests__/server-manager-local-network.test.ts",
+        "__tests__/server-manager-modern-listen.test.ts",
+        "__tests__/server-manager-oauth-service-headers.test.ts",
+        "__tests__/server-manager-reconnect.test.ts",
+        "__tests__/server-manager-runtime-owner.test.ts",
+        "__tests__/server-manager-sampling.test.ts",
+        "__tests__/server-manager-stderr-capture.test.ts",
+        "__tests__/server-session-approval.test.ts",
+        "__tests__/session-approvals.test.ts",
+        "__tests__/session-recovery-integration.test.ts",
+        "__tests__/session-recovery.test.ts",
+        "__tests__/startup-discovery.test.ts",
+        "__tests__/structured-content-fallback-integration.test.ts",
+        "__tests__/tool-approval.test.ts",
+        "__tests__/tool-call-id-meta.test.ts",
+        "__tests__/tool-registrar-structured-content.test.ts",
+        "__tests__/ui-integration.test.ts",
+        "__tests__/ui-resource-handler.test.ts",
+        "__tests__/ui-server-session-recovery.test.ts",
+        "__tests__/ui-server.test.ts",
+        "__tests__/ui-viewer-none.test.ts",
+        "__tests__/ui-viewer-orca.test.ts",
+        "__tests__/unix-socket-transport.test.ts",
+        "__tests__/utils-exec-open.test.ts",
+        "mcp-auth-fetch.test.ts",
+        "mcp-auth-flow-timeout.test.ts"
+      ],
+      "rules": {
+        "landmines-testing/no-test-doubles": "off"
+      }
+    }
+  ]
+}
