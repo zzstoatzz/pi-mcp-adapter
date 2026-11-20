@@ -1,10 +1,23 @@
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { defineConfig } from "vitest/config";
+
+const testHome = mkdtempSync(join(tmpdir(), "pi-mcp-test-home-"));
+process.on("exit", () => rmSync(testHome, { recursive: true, force: true }));
+// Pi subagents export MCP_DIRECT_TOOLS=__none__, which turns off direct, search-mode and script tools.
+// Tests that need it set their own value; an inherited one must not reach them.
+delete process.env.MCP_DIRECT_TOOLS;
 
 export default defineConfig({
   test: {
     globals: true,
     environment: "node",
     env: {
+      // A test that starts a session without its own HOME must never write state into the developer's real Pi agent dir,
+      // so neither the real HOME nor an inherited agent-dir override reaches the tests.
+      HOME: testHome,
+      PI_CODING_AGENT_DIR: "",
       PI_MCP_ADAPTER_TEST_AUTH_STORE: "memory",
       // Cache tests opt in explicitly to keep existing tests platform-neutral.
       PI_MCP_ADAPTER_DISABLE_AUTH_CACHE: "1",

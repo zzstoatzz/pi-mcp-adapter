@@ -57,20 +57,6 @@ jobs:
       - run: npm run test:conformance
       - run: npm pack --dry-run
 
-  node24-worker-fds:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-
-      - run: npm ci
-      - run: npm test -- --run __tests__/mcp-code.test.ts
-
   windows-recheck-paths:
     runs-on: windows-latest
     timeout-minutes: 10
@@ -91,3 +77,8 @@ jobs:
         env:
           RECHECK_BACKEND: java
         run: node -e "const assert = require('node:assert/strict'); const fs = require('node:fs'); const manifest = require.resolve('recheck-jar/package.json'); const jar = manifest.replace(/package\.json$/, 'recheck.jar'); assert.notEqual(jar, manifest); assert.ok(jar.endsWith('\\recheck.jar')); assert.ok(fs.statSync(jar).isFile()); assert.equal(require('recheck').checkSync('(a+)+$', '').status, 'vulnerable');"
+      - name: Run !command secrets through Git Bash
+        run: npm test -- --run __tests__/command-secret-shell.test.ts
+      # Linux CI skips this test because its file system is case-sensitive.
+      - name: Share project-server approvals across path casings
+        run: npm test -- --run __tests__/project-server-trust.test.ts -t "different casing"

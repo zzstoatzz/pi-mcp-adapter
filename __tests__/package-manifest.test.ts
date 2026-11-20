@@ -22,11 +22,6 @@ const hostPeerPackages = {
 };
 
 describe("package.json files", () => {
-  it("keeps the bundled MCP scripting skill available for manual use only", () => {
-    const skill = readFileSync(join(repoRoot, "skills", "mcp-scripting", "SKILL.md"), "utf-8");
-    expect(skill).toMatch(/^disable-model-invocation:\s*true\s*$/m);
-  });
-
   it("ships every doc section the published README links to", () => {
     const readme = readFileSync(join(repoRoot, "README.md"), "utf-8");
     const links = [...readme.matchAll(/\]\(([^)]*docs\/[^)]*)\)/g)].map(([, url]) => {
@@ -108,6 +103,14 @@ describe("package.json files", () => {
     );
 
     expect(offenders).toEqual([]);
+  });
+
+  it("ships an app bridge bundle built from the pinned ext-apps devDependency", () => {
+    const banner = readFileSync(join(repoRoot, "app-bridge.bundle.js"), "utf-8").slice(0, 200);
+    const pinned = packageJson.devDependencies?.["@modelcontextprotocol/ext-apps"];
+
+    expect(pinned).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(banner).toContain(`@modelcontextprotocol/ext-apps@${pinned} `);
   });
 });
 

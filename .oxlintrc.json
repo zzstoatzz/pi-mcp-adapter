@@ -1,21 +1,50 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [],
-  "categories": {
-    "correctness": "off"
-  },
   "ignorePatterns": [
-    "dist/**",
-    "examples/**",
-    "node_modules/**"
+    ".agent/**",
+    ".agents/**",
+    ".claude/**",
+    ".codex/**",
+    ".continue/**",
+    ".cursor/**",
+    ".gemini/**",
+    ".opencode/**",
+    ".pi/**",
+    ".roo/**",
+    ".windsurf/**",
+    "tools/oxlint/anti-slop/**",
+    "**/dist/**",
+    "app-bridge.bundle.js"
   ],
   "jsPlugins": [
+    {
+      "name": "anti-slop",
+      "specifier": "./tools/oxlint/anti-slop/index.ts"
+    },
     {
       "name": "landmines-testing",
       "specifier": "@interfere/landmines/testing"
     }
   ],
   "rules": {
+    "eslint/no-control-regex": "off",
+    "unicorn/no-useless-spread": "off",
+    "eslint/no-unused-vars": [
+      "warn",
+      {
+        "ignoreRestSiblings": true,
+        "argsIgnorePattern": "^_"
+      }
+    ],
+    "oxc/no-accumulating-spread": "error",
+    "anti-slop/no-reduce-accumulator-copy": "error",
+    "anti-slop/no-chained-type-assertions": "error",
+    "anti-slop/no-object-parameters": "error",
+    "anti-slop/no-reflect-apply": "error",
+    "anti-slop/no-reflect-get": "error",
+    "anti-slop/no-widen-then-assert": "error",
+    "landmines-testing/no-test-doubles": "error",
+    "landmines-testing/strict-msw": "error",
     "landmines-testing/no-fixed-sleep": [
       "error",
       {
@@ -26,6 +55,7 @@
           "__tests__/pi-builtin-mcp-autodisable.test.ts": 3,
           "__tests__/pi-reload-real-path.test.ts": 1,
           "__tests__/proxy-modes-manual-auth.test.ts": 2,
+          "__tests__/script-tool-real-path.test.ts": 1,
           "__tests__/server-manager-http-auth.test.ts": 4,
           "__tests__/server-manager-modern-listen.test.ts": 1,
           "__tests__/server-manager-sse-abort.test.ts": 1,
@@ -41,30 +71,38 @@
       {
         "allow": {
           "__tests__/approval-broker-real-path.test.ts": 1,
+          "__tests__/cli.test.ts": 2,
+          "__tests__/codemode-bridge-real-path.test.ts": 4,
+          "__tests__/codemode-deferred-real-path.test.ts": 4,
           "__tests__/direct-tools-child-startup.test.ts": 1,
+          "__tests__/executor-app-tools-real-path.test.ts": 13,
+          "__tests__/executor-catalog-refresh.test.ts": 14,
+          "__tests__/executor-catalog.test.ts": 8,
           "__tests__/lazy-loader.test.ts": 1,
-          "__tests__/mcp-code.test.ts": 1,
           "__tests__/pi-builtin-mcp-autodisable.test.ts": 6,
           "__tests__/pi-builtin-takeover.test.ts": 2,
+          "__tests__/pi-registered-discovery-real-path.test.ts": 3,
           "__tests__/pi-reload-real-path.test.ts": 1,
           "__tests__/pi-signin-import.test.ts": 1,
+          "__tests__/prompt-surface-unchanged.test.ts": 2,
+          "__tests__/proxy-nested-call-real-path.test.ts": 5,
           "__tests__/request-headers-command.test.ts": 1,
+          "__tests__/script-tool-real-path.test.ts": 13,
+          "__tests__/script-tool-save-real-path.test.ts": 13,
           "__tests__/server-manager-legacy-handshake.test.ts": 7,
           "__tests__/server-manager-modern-listen.test.ts": 10
         }
       }
     ],
-    "landmines-testing/no-test-doubles": "error",
     "landmines-testing/no-unsignaled-poll": [
       "error",
       {
         "allow": {
           "__tests__/elicitation-handler.test.ts": 1,
           "__tests__/elicitation-sdk-integration.test.ts": 1,
-          "__tests__/index-lifecycle.test.ts": 39,
+          "__tests__/index-lifecycle.test.ts": 69,
           "__tests__/init-project-trust-start.test.ts": 1,
           "__tests__/lifecycle-lazy-keep-alive-init.test.ts": 2,
-          "__tests__/mcp-code-jev.test.ts": 1,
           "__tests__/pi-builtin-mcp-autodisable.test.ts": 2,
           "__tests__/pi-signin-import.test.ts": 1,
           "__tests__/prompts.test.ts": 1,
@@ -72,20 +110,36 @@
           "__tests__/runtime-protocol-transports.test.ts": 2,
           "__tests__/runtime-register.test.ts": 1,
           "__tests__/runtime-tool-call.test.ts": 1,
+          "__tests__/script-tool-real-path.test.ts": 1,
           "__tests__/server-manager-reconnect.test.ts": 4,
           "__tests__/ui-server.test.ts": 1,
           "__tests__/ui-viewer-orca.test.ts": 1
         }
       }
-    ],
-    "landmines-testing/strict-msw": "error"
+    ]
   },
   "overrides": [
     {
       "files": [
+        "__tests__/**",
+        "conformance/**",
+        "**/*.test.ts",
+        "**/*.test.mjs"
+      ],
+      "rules": {
+        "anti-slop/no-chained-type-assertions": "off",
+        "typescript/no-this-alias": "off",
+        "unicorn/no-thenable": "off"
+      }
+    },
+    {
+      "files": [
         "__tests__/abort-signal.test.ts",
         "__tests__/agent-plugin-conformance.test.ts",
+        "__tests__/approval-deny-reason.test.ts",
+        "__tests__/background-tasks.test.ts",
         "__tests__/claude-plugin-loader.test.ts",
+        "__tests__/codemode-source.test.ts",
         "__tests__/collision-scan-lazy.test.ts",
         "__tests__/combine-abort-signals.test.ts",
         "__tests__/commands-auth.test.ts",
@@ -93,7 +147,10 @@
         "__tests__/commands-onboarding.test.ts",
         "__tests__/commands-panel-auth-storage.test.ts",
         "__tests__/commands-panel-non-tui.test.ts",
+        "__tests__/commands-panel-project-approval.test.ts",
+        "__tests__/commands-panel-session-metadata.test.ts",
         "__tests__/commands-status-failure.test.ts",
+        "__tests__/commands-tasks.test.ts",
         "__tests__/config.test.ts",
         "__tests__/direct-tool-host-contract.test.ts",
         "__tests__/direct-tools-auto-auth.test.ts",
@@ -102,20 +159,21 @@
         "__tests__/domain-error-guidance.test.ts",
         "__tests__/elicitation-handler.test.ts",
         "__tests__/elicitation-sdk-integration.test.ts",
+        "__tests__/executor-accounts.test.ts",
+        "__tests__/executor-app-call.test.ts",
+        "__tests__/executor-pauses.test.ts",
+        "__tests__/extraction.test.ts",
         "__tests__/helpers/panel-theme.ts",
         "__tests__/host-managed.test.ts",
         "__tests__/idle-close-in-use.test.ts",
         "__tests__/index-lifecycle.test.ts",
+        "__tests__/init-background-tasks.test.ts",
         "__tests__/init-elicitation.test.ts",
         "__tests__/init-failure-state.test.ts",
         "__tests__/init-project-trust-start.test.ts",
         "__tests__/init-stale-ctx-race.test.ts",
         "__tests__/init-status.test.ts",
         "__tests__/init-transient-startup.test.ts",
-        "__tests__/jev-client.test.ts",
-        "__tests__/jev-integration-boundaries.test.ts",
-        "__tests__/jev-recipes.test.ts",
-        "__tests__/jev-setup.test.ts",
         "__tests__/json-schema-validator.test.ts",
         "__tests__/lazy-loader.test.ts",
         "__tests__/lifecycle-lazy-keep-alive-init.test.ts",
@@ -124,8 +182,6 @@
         "__tests__/logger.test.ts",
         "__tests__/mcp-auth-flow-client-credentials.test.ts",
         "__tests__/mcp-callback-server-unref.test.ts",
-        "__tests__/mcp-code-jev.test.ts",
-        "__tests__/mcp-code.test.ts",
         "__tests__/mcp-oauth-provider.test.ts",
         "__tests__/mcp-panel-auth.test.ts",
         "__tests__/mcp-panel-copy-error.test.ts",
@@ -151,6 +207,7 @@
         "__tests__/proxy-modes-auto-auth.test.ts",
         "__tests__/proxy-modes-discovery.test.ts",
         "__tests__/proxy-modes-manual-auth.test.ts",
+        "__tests__/proxy-nested-call-real-path.test.ts",
         "__tests__/proxy-progress.test.ts",
         "__tests__/resource-tool-materialization.test.ts",
         "__tests__/resources-capability.test.ts",
@@ -160,9 +217,12 @@
         "__tests__/runtime-tool-call.test.ts",
         "__tests__/sampling-handler.test.ts",
         "__tests__/saved-output-shapes.test.ts",
-        "__tests__/script-pipe-hint.test.ts",
+        "__tests__/script-tool-real-path.test.ts",
+        "__tests__/script-tool-save-real-path.test.ts",
+        "__tests__/script-tool-surface.test.ts",
         "__tests__/secure-keyring-recovery.test.ts",
         "__tests__/semantic-search.test.ts",
+        "__tests__/semantic-setup.test.ts",
         "__tests__/server-manager-auth-cache-recovery-integration.test.ts",
         "__tests__/server-manager-auth-cache-recovery.test.ts",
         "__tests__/server-manager-http-auth.test.ts",
