@@ -41,9 +41,15 @@ jobs:
           echo "upstream=$(git rev-parse --short upstream/main)" >> "$GITHUB_OUTPUT"
           if ! git merge --no-ff --no-edit upstream/main -m "Merge upstream main at $(git rev-parse --short upstream/main)"; then
             git diff --name-only --diff-filter=U > "$RUNNER_TEMP/conflicts.txt"
-            git merge --abort
-            echo "stage=merge" >> "$GITHUB_OUTPUT"
-            exit 1
+            if grep -qvE '^(dist/.*|package-lock\.json|\.oxlintrc\.json)$' "$RUNNER_TEMP/conflicts.txt"; then
+              git merge --abort
+              echo "stage=merge" >> "$GITHUB_OUTPUT"
+              exit 1
+            fi
+            # Generated files: take upstream's copy; the next step rebuilds them with this fork's changes.
+            xargs git checkout --theirs -- < "$RUNNER_TEMP/conflicts.txt"
+            xargs git add -- < "$RUNNER_TEMP/conflicts.txt"
+            git commit --no-edit
           fi
 
       - uses: actions/setup-node@v4
