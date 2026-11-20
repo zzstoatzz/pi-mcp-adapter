@@ -48,7 +48,7 @@ jobs:
             fi
             # Generated files: take upstream's copy; the next step rebuilds them with this fork's changes.
             xargs git checkout --theirs -- < "$RUNNER_TEMP/conflicts.txt"
-            xargs git add -- < "$RUNNER_TEMP/conflicts.txt"
+            xargs git add -f -- < "$RUNNER_TEMP/conflicts.txt"
             git commit --no-edit
           fi
 
@@ -67,7 +67,7 @@ jobs:
           npm install --no-audit --no-fund
           node scripts/landmines-baseline.mjs
           npm run build:public
-          git add -A package-lock.json .oxlintrc.json dist
+          git add -A -f package-lock.json .oxlintrc.json dist
           git diff --cached --quiet || git commit --amend --no-edit
 
       - name: Check the merged tree
@@ -103,9 +103,9 @@ jobs:
             body="Upstream main at $UPSTREAM merged cleanly, but the checks failed."
           fi
           body="$body"$'\n\n'"Run: $RUN_URL"
-          existing=$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[0].number')
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$title\"" --json number --jq '.[0].number')
           if [ -n "$existing" ]; then
-            gh issue comment "$existing" --body "$body"
+            gh issue comment --repo "$GITHUB_REPOSITORY" "$existing" --body "$body"
           else
-            gh issue create --title "$title" --body "$body"
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body"
           fi
