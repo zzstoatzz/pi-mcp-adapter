@@ -1,0 +1,105 @@
+name: Upstream sync
+
+on:
+  schedule:
+    - cron: "17 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.repository == 'zzstoatzz/pi-mcp-adapter'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Merge upstream main
+        id: merge
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/nicobailon/pi-mcp-adapter.git
+          git fetch upstream main
+          behind=$(git rev-list --count HEAD..upstream/main)
+          echo "behind=$behind" >> "$GITHUB_OUTPUT"
+          if [ "$behind" = "0" ]; then
+            echo "Already up to date with upstream."
+            exit 0
+          fi
+          echo "upstream=$(git rev-parse --short upstream/main)" >> "$GITHUB_OUTPUT"
+          if ! git merge --no-ff --no-edit upstream/main -m "Merge upstream main at $(git rev-parse --short upstream/main)"; then
+            git diff --name-only --diff-filter=U > "$RUNNER_TEMP/conflicts.txt"
+            git merge --abort
+            echo "stage=merge" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.merge.outputs.behind != '0'
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: astral-sh/setup-uv@v6
+        if: steps.merge.outputs.behind != '0'
+
+      - name: Refresh lockfile, landmines baseline and dist
+        if: steps.merge.outputs.behind != '0'
+        run: |
+          npm install --no-audit --no-fund
+          node scripts/landmines-baseline.mjs
+          npm run build:public
+          git add -A package-lock.json .oxlintrc.json dist
+          git diff --cached --quiet || git commit --amend --no-edit
+
+      - name: Check the merged tree
+        if: steps.merge.outputs.behind != '0'
+        run: |
+          npm ci
+          npm install --prefix examples/interactive-visualizer --no-package-lock --no-audit --no-fund
+          npm run --prefix examples/interactive-visualizer build
+          npm run typecheck
+          npm run lint
+          npm test
+          git diff --exit-code --stat -- dist
+          npm run test:oauth
+          npm run test:skills
+          npm run test:conformance
+
+      - name: Push
+        if: steps.merge.outputs.behind != '0'
+        run: git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Report a failed sync
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STAGE: ${{ steps.merge.outputs.stage }}
+          UPSTREAM: ${{ steps.merge.outputs.upstream }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Upstream sync is blocked"
+          if [ "$STAGE" = "merge" ]; then
+            body="Merging upstream main at $UPSTREAM conflicts in:"$'\n\n'"$(sed 's/^/- /' "$RUNNER_TEMP/conflicts.txt")"
+          else
+            body="Upstream main at $UPSTREAM merged cleanly, but the checks failed."
+          fi
+          body="$body"$'\n\n'"Run: $RUN_URL"
+          existing=$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi
