@@ -89,6 +89,7 @@
           "__tests__/request-headers-command.test.ts": 1,
           "__tests__/script-tool-real-path.test.ts": 13,
           "__tests__/script-tool-save-real-path.test.ts": 13,
+          "__tests__/sdk-warnings.test.ts": 3,
           "__tests__/server-manager-legacy-handshake.test.ts": 7,
           "__tests__/server-manager-modern-listen.test.ts": 10
         }
@@ -146,6 +147,7 @@
         "__tests__/commands-edit.test.ts",
         "__tests__/commands-onboarding.test.ts",
         "__tests__/commands-panel-auth-storage.test.ts",
+        "__tests__/commands-panel-disable-save.test.ts",
         "__tests__/commands-panel-non-tui.test.ts",
         "__tests__/commands-panel-project-approval.test.ts",
         "__tests__/commands-panel-session-metadata.test.ts",
@@ -220,6 +222,7 @@
         "__tests__/script-tool-real-path.test.ts",
         "__tests__/script-tool-save-real-path.test.ts",
         "__tests__/script-tool-surface.test.ts",
+        "__tests__/sdk-warnings.test.ts",
         "__tests__/secure-keyring-recovery.test.ts",
         "__tests__/semantic-search.test.ts",
         "__tests__/semantic-setup.test.ts",

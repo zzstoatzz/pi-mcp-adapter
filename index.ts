@@ -37,6 +37,7 @@ import { createRetryableLoader } from "./lazy-loader.ts";
 import { toToolParameters } from "./tool-parameters.ts";
 import { readPanelOpenKeys } from "./panel-keys.ts";
 import { getAgentPath } from "./agent-dir.ts";
+import { routeSdkWarningsToLog } from "./sdk-warnings.ts";
 import { showUpgradeNotice } from "./upgrade-notice.ts";
 
 export type { McpAdapterOptions } from "./types.ts";
@@ -270,6 +271,7 @@ function installMcpAdapter(pi: ExtensionAPI, options: McpAdapterOptions) {
   if (!programmaticConfig) setPiMcpConfigEnabled(piSupportsMcp(pi));
   let state: McpExtensionState | null = null;
   let sessionCtx: ExtensionContext | null = null;
+  let releaseSdkWarnings: (() => void) | undefined;
   let initPromise: Promise<McpExtensionState> | null = null;
   let initStartedPromise: Promise<void> | null = null;
   let currentOwner: McpRuntimeOwner | null = null;
@@ -1727,6 +1729,7 @@ function installMcpAdapter(pi: ExtensionAPI, options: McpAdapterOptions) {
 
   pi.on("session_start", async (_event, ctx) => {
     sessionCtx = null;
+    if (ctx.mode === "tui") releaseSdkWarnings ??= routeSdkWarningsToLog();
     // A host that embeds the adapter with its own config ships it inside another package; its users never installed this one.
     if (options.config === undefined && options.configPath === undefined) {
       void showUpgradeNotice(ctx).catch((error) => console.error(`MCP: failed to show the upgrade notice: ${formatTerminalError(error)}`));
@@ -1785,7 +1788,8 @@ function installMcpAdapter(pi: ExtensionAPI, options: McpAdapterOptions) {
       void import("./pi-builtin-mcp.ts")
         .then(({ turnOffPiBuiltinMcp }) => turnOffPiBuiltinMcp())
         .then((turnedOff) => {
-          if (turnedOff) report("Turned off Pi's built-in MCP so it doesn't run next to pi-mcp-adapter. If you remove the adapter, turn it back on in `pi config` → Built-in.", "info");
+          // "warning", not "info": Pi renders info dim, and this line sits between two copies of Pi's own warning.
+          if (turnedOff) report("Turned off Pi's built-in MCP so it doesn't run next to pi-mcp-adapter. Pi's `builtin:mcp` warning about `/mcp` needs no action and won't show next start. To go back to Pi's built-in MCP, remove the adapter (for example `pi remove npm:pi-mcp-adapter`), then turn `mcp` back on in `pi config` → Built-in extensions.", "warning");
         })
         .catch((error) => report(`MCP: could not turn off Pi's built-in MCP: ${formatTerminalError(error)}`, "warning"));
     }
@@ -1898,6 +1902,8 @@ function installMcpAdapter(pi: ExtensionAPI, options: McpAdapterOptions) {
 
   pi.on("session_shutdown", async () => {
     sessionCtx = null;
+    releaseSdkWarnings?.();
+    releaseSdkWarnings = undefined;
     ++lifecycleGeneration;
     const currentState = state;
     const owner = currentOwner;
@@ -2282,7 +2288,13 @@ function installMcpAdapter(pi: ExtensionAPI, options: McpAdapterOptions) {
             break;
           }
           commandOwner?.throwIfInactive();
-          const result = writeProjectServerDisabledOverride(earlyConfigPath, commandCtx.cwd, serverName, subcommand === "disable");
+          let result: ReturnType<typeof writeProjectServerDisabledOverride>;
+          try {
+            result = writeProjectServerDisabledOverride(earlyConfigPath, commandCtx.cwd, serverName, subcommand === "disable");
+          } catch (error) {
+            commandCtx.ui?.notify(`Failed to ${subcommand} server "${serverName}": ${error instanceof Error ? error.message : String(error)}`, "error");
+            break;
+          }
           if (result.changed) {
             commandCtx.ui?.notify(`${subcommand === "disable" ? "Disabled" : "Enabled"} server "${serverName}" in ${result.path} — run /reload to apply`, "info");
           } else {
@@ -2378,7 +2390,7 @@ function installMcpAdapter(pi: ExtensionAPI, options: McpAdapterOptions) {
         return;
       }
 
-      const result = await commands.authenticateServer(serverName, state.config, commandCtx, commandCtx.signal, state.oauthRuntime);
+      const result = await commands.authenticateServer(serverName, state.config, commandCtx, state.openBrowser, commandCtx.signal, state.oauthRuntime);
       if (result.ok) {
         commandOwner?.throwIfInactive();
         await commands.reconnectServer(state, commandCtx, serverName);
